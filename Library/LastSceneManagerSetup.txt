@@ -1,0 +1,4 @@
+sceneSetups:
+- path: Assets/PlatformerController2D Testing.unity
+  isLoaded: 1
+  isActive: 1
