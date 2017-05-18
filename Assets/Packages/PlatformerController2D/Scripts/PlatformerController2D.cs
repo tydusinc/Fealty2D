@@ -161,7 +161,8 @@ public class PlatformerController2D : MonoBehaviour {
                     _frameVelocity = movementVector * Mathf.Abs(_frameVelocity.x);
                     RaycastHit2D slopeChangeCheck = Physics2D.Raycast(rayOrigin, _frameVelocity, _frameVelocity.magnitude, staticCollisionMask);
                     if(slopeChangeCheck) {
-                        _frameVelocity = slopeChangeCheck.fraction * _frameVelocity;
+                        movementVector = Vector3.Cross(slopeChangeCheck.normal, Vector3.forward * Mathf.Sign(slopeChangeCheck.normal.x));
+                        _frameVelocity = movementVector * Mathf.Abs(_frameVelocity.x);
                     }
                 }
             }
