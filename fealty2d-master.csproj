@@ -80,7 +80,6 @@
   <ItemGroup>
     <Compile Include="Assets\Packages\AI\PatrolAI.cs" />
     <Compile Include="Assets\Packages\PlatformerController2D\Scripts\PlatformerController2D.cs" />
-    <Compile Include="Assets\Packages\PlatformerController2D\Scripts\PlatformerPhysics2D.cs" />
     <Compile Include="Assets\Packages\PlatformerController2D\Scripts\PlayerAnimator.cs" />
     <Compile Include="Assets\Packages\PlatformerController2D\Scripts\PlayerController.cs" />
     <Compile Include="Assets\Packages\Standard Assets\2D\Scripts\Camera2DFollow.cs" />

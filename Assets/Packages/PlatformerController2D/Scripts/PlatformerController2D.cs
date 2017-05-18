@@ -49,8 +49,6 @@ public class PlatformerController2D : MonoBehaviour {
     public ControllerStates previousState;
     public Action<ControllerStates> stateChangeEvent = (state) => { };
 
-    //public Action OnCollision2D = (Collision2D collision) => { };
-
     void Awake() {
         _boxCollider = GetComponent<BoxCollider2D>();
         gravity.y = -(2 * jumpHeight) / (timeToJumpApex * timeToJumpApex);
@@ -136,15 +134,12 @@ public class PlatformerController2D : MonoBehaviour {
         Vector2 verticalRayDirection = _frameVelocity.y >= 0 ? Vector2.up : Vector2.down;
         float closestVerticalDistance = Mathf.Abs(_frameVelocity.y) + skinWidth;
         for(int i = 0; i < verticalRayCount; i++) {
-            //Debug.DrawRay(verticalOrigin + verticalIncrementDirection * i * verticalSpacing, verticalRayDirection * (Mathf.Abs(frameVelocity.y) + skinWidth));
             RaycastHit2D hit = Physics2D.Raycast(verticalOrigin + verticalIncrementDirection * i * verticalSpacing, verticalRayDirection, Mathf.Abs(_frameVelocity.y) + skinWidth, staticCollisionMask);
             if(hit) {
-                //Call OnCollision2D
                 if(velocity.y < 0) {
                     isGrounded = true;
                 }
 
-                //Debug.DrawRay(verticalOrigin + verticalIncrementDirection * i * verticalSpacing, verticalRayDirection * hit.distance, Color.red);
                 closestVerticalDistance = Mathf.Min(closestVerticalDistance, hit.distance);
                 velocity.y = 0;
             }
@@ -153,7 +148,6 @@ public class PlatformerController2D : MonoBehaviour {
     }
     void HandleSlopeDescent() {
         Vector2 rayOrigin = _frameVelocity.x > 0 ? _skinBounds.min : _skinBounds.min + Vector3.right * _skinBounds.size.x;
-        //Debug.DrawRay(rayOrigin, Vector2.down, Color.black);
         RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.down, Mathf.Infinity, staticCollisionMask);
         if(hit) {
             float angle = Vector2.Angle(hit.normal, Vector2.up);
@@ -161,7 +155,6 @@ public class PlatformerController2D : MonoBehaviour {
                 if(Mathf.Sign(hit.normal.x) == Mathf.Sign(_frameVelocity.x)) {
                     Vector2 movementVector = Vector3.Cross(hit.normal, Vector3.forward * Mathf.Sign(hit.normal.x));
                     _frameVelocity = movementVector * Mathf.Abs(_frameVelocity.x);
-                    //Debug.DrawRay(rayOrigin, movementVector, Color.black);
                     isGrounded = true;
                 }
             }
