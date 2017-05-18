@@ -119,11 +119,19 @@ public class PlatformerController2D : MonoBehaviour {
                     }
 
                     Vector2 movementVector = Vector3.Cross(Vector3.forward * Mathf.Sign(-_frameVelocity.x), hit.normal).normalized;
-                    _frameVelocity = movementVector * Mathf.Abs(_frameVelocity.x);
+                    if(_frameVelocity.y > (movementVector * Mathf.Abs(_frameVelocity.x)).y) {
+                        _frameVelocity.x = (movementVector * Mathf.Abs(_frameVelocity.x)).x;
+                    } else {
+                        _frameVelocity = movementVector * Mathf.Abs(_frameVelocity.x);
+                    }
                     RaycastHit2D slopeChangeCheck = Physics2D.Raycast(rayOrigin + Vector2.up * i * raySpacing, _frameVelocity, _frameVelocity.magnitude, staticCollisionMask);
                     if(slopeChangeCheck) {
                         movementVector = Vector3.Cross(slopeChangeCheck.normal, Vector3.forward * Mathf.Sign(slopeChangeCheck.normal.x));
-                        _frameVelocity = movementVector * Mathf.Abs(_frameVelocity.x);
+                        if(_frameVelocity.y > (movementVector * Mathf.Abs(_frameVelocity.x)).y) {
+                            _frameVelocity.x = (movementVector * Mathf.Abs(_frameVelocity.x)).x;
+                        } else {
+                            _frameVelocity = movementVector * Mathf.Abs(_frameVelocity.x);
+                        }
                     }
                 } else {
                     closestHit = Mathf.Min(closestHit, hit.distance);
