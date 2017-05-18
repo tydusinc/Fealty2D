@@ -77,12 +77,17 @@ public class PlatformerController2D : MonoBehaviour {
         isCrouching = !isCrouching;
     }
 
-    void HandleCollisions() {
+    void ResetFlags() {
         isGrounded = false;
         _isClimbingSlope = false;
-
+    }
+    void RecalcualteBounds() {
         _skinBounds = _boxCollider.bounds;
         _skinBounds.Expand(-skinWidth * 2);
+    }
+    void HandleCollisions() {
+        ResetFlags();
+        RecalcualteBounds();
 
         if (_frameVelocity.x != 0) {
             HandleHorizontalCollisions();
@@ -96,16 +101,17 @@ public class PlatformerController2D : MonoBehaviour {
     }
     void HandleHorizontalCollisions() {
         horizontalRayCount = Mathf.Max(2, horizontalRayCount);
-        float horizontalSpacing = _skinBounds.size.y / (horizontalRayCount - 1);
-        Vector2 horizontalOrigin = _frameVelocity.x >= 0 ? _skinBounds.min + _skinBounds.size.x * Vector3.right : _skinBounds.min;
-        Vector2 horizontalRayDirection = _frameVelocity.x >= 0 ? Vector2.right : Vector2.left;
+        float raySpacing = _skinBounds.size.y / (horizontalRayCount - 1);
+        Vector2 rayOrigin = _frameVelocity.x >= 0 ? _skinBounds.min + _skinBounds.size.x * Vector3.right : _skinBounds.min;
+        Vector2 rayDirection = _frameVelocity.x >= 0 ? Vector2.right : Vector2.left;
+        int hitCount = 0;
         float closestHit = Mathf.Abs(_frameVelocity.x) + skinWidth;
         for(int i = 0; i < horizontalRayCount; i++) {
-            RaycastHit2D hit = Physics2D.Raycast(horizontalOrigin + Vector2.up * i * horizontalSpacing, horizontalRayDirection, Mathf.Abs(_frameVelocity.x) + skinWidth, staticCollisionMask);
+            RaycastHit2D hit = Physics2D.Raycast(rayOrigin + Vector2.up * i * raySpacing, rayDirection, Mathf.Abs(_frameVelocity.x) + skinWidth, staticCollisionMask);
             if(hit) {
+                hitCount++;
                 float slopeAngle = Vector2.Angle(hit.normal, Vector2.up);
                 if(i == 0 && (slopeAngle > 0 && slopeAngle <= maximumClimbAngle)) {
-                    Debug.DrawRay(hit.point, hit.normal, Color.black);
                     _isClimbingSlope = true;
                     isGrounded = true;
                     if(velocity.y < 0) {
@@ -113,15 +119,15 @@ public class PlatformerController2D : MonoBehaviour {
                     }
 
                     Vector2 movementVector = Vector3.Cross(Vector3.forward * Mathf.Sign(-_frameVelocity.x), hit.normal).normalized;
-                    Debug.DrawRay(hit.point, movementVector, Color.red);
                     _frameVelocity = movementVector * Mathf.Abs(_frameVelocity.x);
                 } else {
+                    closestHit = Mathf.Min(closestHit, hit.distance);
                     velocity.x = 0;
                 }
-                closestHit = Mathf.Min(closestHit, hit.distance);
             }
         }
-        _frameVelocity.x = (closestHit - skinWidth) * Mathf.Sign(_frameVelocity.x);
+        if (!_isClimbingSlope || hitCount > 1)
+            _frameVelocity.x = (closestHit - skinWidth) * Mathf.Sign(_frameVelocity.x);
     }
     void HandleVerticalCollisions() {
         verticalRayCount = Mathf.Max(2, verticalRayCount);
@@ -150,9 +156,13 @@ public class PlatformerController2D : MonoBehaviour {
             float angle = Vector2.Angle(hit.normal, Vector2.up);
             if(angle != 0) {
                 if(Mathf.Sign(hit.normal.x) == Mathf.Sign(_frameVelocity.x)) {
+                    isGrounded = true;
                     Vector2 movementVector = Vector3.Cross(hit.normal, Vector3.forward * Mathf.Sign(hit.normal.x));
                     _frameVelocity = movementVector * Mathf.Abs(_frameVelocity.x);
-                    isGrounded = true;
+                    RaycastHit2D slopeChangeCheck = Physics2D.Raycast(rayOrigin, _frameVelocity, _frameVelocity.magnitude, staticCollisionMask);
+                    if(slopeChangeCheck) {
+                        _frameVelocity = slopeChangeCheck.fraction * _frameVelocity;
+                    }
                 }
             }
         }
