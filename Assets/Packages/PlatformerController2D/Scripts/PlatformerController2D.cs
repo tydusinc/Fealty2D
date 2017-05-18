@@ -118,21 +118,36 @@ public class PlatformerController2D : MonoBehaviour {
                         velocity.y = 0;
                     }
 
+                    transform.Translate(_frameVelocity * (hit.distance - skinWidth));
+
                     Vector2 movementVector = Vector3.Cross(Vector3.forward * Mathf.Sign(-_frameVelocity.x), hit.normal).normalized;
                     if(_frameVelocity.y > (movementVector * Mathf.Abs(_frameVelocity.x)).y) {
                         _frameVelocity.x = (movementVector * Mathf.Abs(_frameVelocity.x)).x;
                     } else {
                         _frameVelocity = movementVector * Mathf.Abs(_frameVelocity.x);
                     }
+                    /*
                     RaycastHit2D slopeChangeCheck = Physics2D.Raycast(rayOrigin + Vector2.up * i * raySpacing, _frameVelocity, _frameVelocity.magnitude, staticCollisionMask);
                     if(slopeChangeCheck) {
-                        movementVector = Vector3.Cross(slopeChangeCheck.normal, Vector3.forward * Mathf.Sign(slopeChangeCheck.normal.x));
+                        //transform.Translate(_frameVelocity * slopeChangeCheck.fraction);
+                        movementVector = Vector3.Cross(slopeChangeCheck.normal, Vector3.forward * Mathf.Sign(-slopeChangeCheck.normal.x));
                         if(_frameVelocity.y > (movementVector * Mathf.Abs(_frameVelocity.x)).y) {
                             _frameVelocity.x = (movementVector * Mathf.Abs(_frameVelocity.x)).x;
                         } else {
                             _frameVelocity = movementVector * Mathf.Abs(_frameVelocity.x);
                         }
                     }
+                    */
+                    /*
+                    Debug.DrawRay(rayOrigin + Vector2.up * _skinBounds.size.y, _frameVelocity, Color.black);
+                    RaycastHit2D slopeCollisionCheck = Physics2D.Raycast(rayOrigin + Vector2.up * _skinBounds.size.y, _frameVelocity, _frameVelocity.magnitude, staticCollisionMask);
+                    if(slopeCollisionCheck) {
+                        Debug.DrawRay(rayOrigin + Vector2.up * _skinBounds.size.y, _frameVelocity * slopeCollisionCheck.fraction, Color.red);
+                        Debug.DrawRay(slopeCollisionCheck.point, (_frameVelocity) * (slopeCollisionCheck.distance - skinWidth), Color.blue);
+                        velocity.x = 0;
+                        _frameVelocity = Vector2.zero;
+                    }
+                    */
                 } else {
                     closestHit = Mathf.Min(closestHit, hit.distance);
                     velocity.x = 0;
@@ -170,11 +185,11 @@ public class PlatformerController2D : MonoBehaviour {
             if(angle != 0) {
                 if(Mathf.Sign(hit.normal.x) == Mathf.Sign(_frameVelocity.x)) {
                     isGrounded = true;
-                    Vector2 movementVector = Vector3.Cross(hit.normal, Vector3.forward * Mathf.Sign(hit.normal.x));
+                    Vector2 movementVector = Vector3.Cross(hit.normal, Vector3.forward * Mathf.Sign(hit.normal.x)).normalized;
                     _frameVelocity = movementVector * Mathf.Abs(_frameVelocity.x);
                     RaycastHit2D slopeChangeCheck = Physics2D.Raycast(rayOrigin, _frameVelocity, _frameVelocity.magnitude, staticCollisionMask);
                     if(slopeChangeCheck) {
-                        movementVector = Vector3.Cross(slopeChangeCheck.normal, Vector3.forward * Mathf.Sign(slopeChangeCheck.normal.x));
+                        movementVector = Vector3.Cross(slopeChangeCheck.normal, -Vector3.forward * Mathf.Sign(-_frameVelocity.x)).normalized;
                         _frameVelocity = movementVector * Mathf.Abs(_frameVelocity.x);
                     }
                 }
