@@ -104,10 +104,8 @@ public class PlatformerController2D : MonoBehaviour {
         Vector2 horizontalRayDirection = _frameVelocity.x >= 0 ? Vector2.right : Vector2.left;
         float closestHorizontalDistance = Mathf.Abs(_frameVelocity.x) + skinWidth;
         for(int i = 0; i < horizontalRayCount; i++) {
-            //Debug.DrawRay(horizontalOrigin + horizontalIncrementDirection * i * horizontalSpacing, horizontalRayDirection * (Mathf.Abs(frameVelocity.x) + skinWidth));
             RaycastHit2D hit = Physics2D.Raycast(horizontalOrigin + horizontalIncrementDirection * i * horizontalSpacing, horizontalRayDirection, Mathf.Abs(_frameVelocity.x) + skinWidth, staticCollisionMask);
             if(hit) {
-                //Call OnCollision2D
                 float slopeAngle = Vector2.Angle(hit.normal, Vector2.up);
                 if((i == 0 && _frameVelocity.x < 0 || i == horizontalRayCount - 1 && _frameVelocity.x > 0) && (slopeAngle > 0 && slopeAngle <= maximumClimbAngle)) {
                     _climbingSlope = true;
@@ -115,10 +113,7 @@ public class PlatformerController2D : MonoBehaviour {
                         velocity.y = 0;
                     }
                     Vector2 movementVector = Vector3.Cross(Vector3.forward * Mathf.Sign(-_frameVelocity.x), hit.normal).normalized;
-                    //Debug.DrawRay(horizontalOrigin + horizontalIncrementDirection * i * horizontalSpacing, horizontalRayDirection * hit.distance, Color.red);
                     _frameVelocity = movementVector * Mathf.Abs(_frameVelocity.x);
-                    /*_frameVelocity.x = movementVector.x * Mathf.Abs(_frameVelocity.x);
-                    _frameVelocity.y = movementVector.y * Mathf.Abs(_frameVelocity.x) + velocity.y * Time.fixedDeltaTime;*/
                     isGrounded = true;
                 } else {
                     velocity.x = 0;
@@ -128,12 +123,10 @@ public class PlatformerController2D : MonoBehaviour {
                         }
                     }
                 }
-                //Debug.DrawRay(horizontalOrigin + horizontalIncrementDirection * i * horizontalSpacing, horizontalRayDirection * hit.distance, Color.red);
                 closestHorizontalDistance = Mathf.Min(closestHorizontalDistance, hit.distance);
             }
         }
-        if (!_climbingSlope)
-            _frameVelocity.x = (closestHorizontalDistance - skinWidth) * Mathf.Sign(_frameVelocity.x);
+        _frameVelocity.x = (closestHorizontalDistance - skinWidth) * Mathf.Sign(_frameVelocity.x);
     }
     void HandleVerticalCollisions() {
         verticalRayCount = Mathf.Max(2, verticalRayCount);
